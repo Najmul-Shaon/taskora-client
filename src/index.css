@@ -10,13 +10,12 @@
   /* overll colors::: light mode colors  */
   --color-primaryLight: #2a2a72;
   --color-secondaryLight: #83baf2;
-  --color-accentLight: #ff9800;
+  --color-accentColor: #ff9800;
   --color-textLight: #01070d;
   --color-bgLight: #f4f6f8;
   /* overll colors::: dark mode colors  */
   --color-primaryDark: #acbdd1;
   --color-secondaryDark: #0d457d;
-  --color-accentDark: #ff9900;
   --color-textDark: #f1f7fe;
   --color-bgDark: #080a0c;
 }
