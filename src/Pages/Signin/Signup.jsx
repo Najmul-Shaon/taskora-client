@@ -4,7 +4,7 @@ const Signup = () => {
   return (
     <div className="flex items-center justify-center flex-col md:flex-row">
       <div className="flex flex-col justify-center items-center w-full md:w-1/2">
-        <h3 className="text-3xl font-bold">Taskora</h3>
+        <h3 className="text-4xl font-bold text-primaryLight">Taskora</h3>
         <h3>Let&apos;s Management Better</h3>
         <img className="w-[350px]" src={signupImg} alt="" />
       </div>
