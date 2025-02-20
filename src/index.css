@@ -1,2 +1,22 @@
+/* nunito font from goolgle  */
+@import url("https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap");
+
 @import "tailwindcss";
 @plugin "daisyui";
+
+@theme {
+  /* google font  */
+  --font-nunito: "Nunito", "serif";
+  /* overll colors::: light mode colors  */
+  --color-primaryLight: #2a2a72;
+  --color-secondaryLight: #83baf2;
+  --color-accentLight: #ff9800;
+  --color-textLight: #01070d;
+  --color-bgLight: #f4f6f8;
+  /* overll colors::: dark mode colors  */
+  --color-primaryDark: #acbdd1;
+  --color-secondaryDark: #0d457d;
+  --color-accentDark: #ff9900;
+  --color-textDark: #f1f7fe;
+  --color-bgDark: #080a0c;
+}
