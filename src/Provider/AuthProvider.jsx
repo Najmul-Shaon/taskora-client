@@ -3,8 +3,10 @@ import { AuthContext } from "./AutcContext";
 import {
   createUserWithEmailAndPassword,
   getAuth,
+  GoogleAuthProvider,
   onAuthStateChanged,
   signInWithEmailAndPassword,
+  signInWithPopup,
   updateProfile,
 } from "firebase/auth";
 import { app } from "../firebase/firebase.config";
@@ -15,7 +17,7 @@ const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
 
   // manage user loading
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const auth = getAuth(app);
 
@@ -39,6 +41,13 @@ const AuthProvider = ({ children }) => {
     return signInWithEmailAndPassword(auth, email, pass);
   };
 
+  // login with social::: google
+  const googlePopUpProvider = new GoogleAuthProvider();
+  const loginWithGoogle = () => {
+    setLoading(true);
+    return signInWithPopup(auth, googlePopUpProvider);
+  };
+
   // get currently sign in user
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -51,7 +60,14 @@ const AuthProvider = ({ children }) => {
     };
   }, [auth]);
 
-  const authInfo = { loading, user, createUser, updateUser, login };
+  const authInfo = {
+    loading,
+    user,
+    createUser,
+    updateUser,
+    login,
+    loginWithGoogle,
+  };
   return (
     <AuthContext.Provider value={authInfo}>{children}</AuthContext.Provider>
   );

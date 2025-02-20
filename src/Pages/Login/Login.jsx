@@ -3,11 +3,13 @@ import signInImg from "../../assets/login.svg";
 import { useForm } from "react-hook-form";
 import useAuth from "../../Hooks/useAuth";
 import Swal from "sweetalert2";
+import useAxiosPublic from "../../Hooks/useAxiosPublic";
 
 const Login = () => {
+  const axiosPublic = useAxiosPublic();
   const location = useLocation();
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login, loginWithGoogle } = useAuth();
   const from = location.state?.from?.pathname || "/";
   const {
     register,
@@ -32,6 +34,54 @@ const Login = () => {
     });
     console.log(data);
   };
+
+  const handleGoogleLogin = () => {
+    loginWithGoogle()
+      .then((res) => {
+        const userInfo = {
+          userEmail: res.user.email,
+          userName: res.user.displayName,
+          userImg: res.user.photoURL,
+          createdAt: new Date(),
+        };
+        axiosPublic
+          .post("/create-user", userInfo)
+          .then((res) => {
+            console.log();
+            if (
+              res.data.insertedId ||
+              res.data.message === "User already exists"
+            ) {
+              Swal.fire({
+                position: "center",
+                icon: "success",
+                title: "Welcome to Taskora!!",
+                showConfirmButton: false,
+                timer: 1500,
+              });
+              navigate(from, { replace: true });
+            }
+          })
+          .catch(() => {
+            Swal.fire({
+              position: "center",
+              icon: "error",
+              title: "Opps! An error occured.",
+              showConfirmButton: false,
+              timer: 1500,
+            });
+          });
+      })
+      .catch(() => {
+        Swal.fire({
+          position: "center",
+          icon: "error",
+          title: "Opps! An error occured.",
+          showConfirmButton: false,
+          timer: 1500,
+        });
+      });
+  };
   return (
     <div className="flex items-center justify-center flex-col md:flex-row">
       <div className="flex flex-col justify-center items-center w-full md:w-1/2">
@@ -44,7 +94,10 @@ const Login = () => {
         <div className="text-white text-5xl font-bold mb-12">Log In</div>
 
         {/* Google */}
-        <button className="btn bg-white text-black border-[#e5e5e5]">
+        <button
+          onClick={handleGoogleLogin}
+          className="btn bg-white text-black border-[#e5e5e5]"
+        >
           <svg
             aria-label="Google logo"
             width="16"

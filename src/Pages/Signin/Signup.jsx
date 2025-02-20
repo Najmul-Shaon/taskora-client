@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import signupImg from "../../assets/signup.svg";
 import { useForm } from "react-hook-form";
 import useAxiosSecure from "../../Hooks/useAxiosSecure";
@@ -12,7 +12,9 @@ const Signup = () => {
   const axiosSecure = useAxiosSecure();
   const axiosPublic = useAxiosPublic();
   const navigate = useNavigate();
-  const { createUser, updateUser } = useAuth();
+  const location = useLocation();
+  const from = location.state?.from?.pathname || "/";
+  const { createUser, updateUser, loginWithGoogle } = useAuth();
   const {
     register,
     handleSubmit,
@@ -76,6 +78,53 @@ const Signup = () => {
     }
     console.log(res?.data?.data?.display_url);
   };
+  const handleGoogleLogin = () => {
+    loginWithGoogle()
+      .then((res) => {
+        const userInfo = {
+          userEmail: res.user.email,
+          userName: res.user.displayName,
+          userImg: res.user.photoURL,
+          createdAt: new Date(),
+        };
+        axiosPublic
+          .post("/create-user", userInfo)
+          .then((res) => {
+            console.log();
+            if (
+              res.data.insertedId ||
+              res.data.message === "User already exists"
+            ) {
+              Swal.fire({
+                position: "center",
+                icon: "success",
+                title: "Welcome to Taskora!!",
+                showConfirmButton: false,
+                timer: 1500,
+              });
+              navigate(from, { replace: true });
+            }
+          })
+          .catch(() => {
+            Swal.fire({
+              position: "center",
+              icon: "error",
+              title: "Opps! An error occured.",
+              showConfirmButton: false,
+              timer: 1500,
+            });
+          });
+      })
+      .catch(() => {
+        Swal.fire({
+          position: "center",
+          icon: "error",
+          title: "Opps! An error occured.",
+          showConfirmButton: false,
+          timer: 1500,
+        });
+      });
+  };
   return (
     <div className="flex items-center justify-center flex-col md:flex-row">
       <div className="flex flex-col justify-center items-center w-full md:w-1/2">
@@ -88,7 +137,10 @@ const Signup = () => {
         <div className="text-white text-5xl font-bold mb-12">Sign Up</div>
 
         {/* Google */}
-        <button className="btn bg-white text-black border-[#e5e5e5]">
+        <button
+          onClick={handleGoogleLogin}
+          className="btn bg-white text-black border-[#e5e5e5]"
+        >
           <svg
             aria-label="Google logo"
             width="16"
