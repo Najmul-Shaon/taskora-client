@@ -1,6 +1,81 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import signupImg from "../../assets/signup.svg";
+import { useForm } from "react-hook-form";
+import useAxiosSecure from "../../Hooks/useAxiosSecure";
+import useAxiosPublic from "../../Hooks/useAxiosPublic";
+import useAuth from "../../Hooks/useAuth";
+import Swal from "sweetalert2";
+const imgBbHostingKey = import.meta.env.VITE_IMGBB_KEY;
+const imgBbApi = `https://api.imgbb.com/1/upload?key=${imgBbHostingKey}`;
+
 const Signup = () => {
+  const axiosSecure = useAxiosSecure();
+  const axiosPublic = useAxiosPublic();
+  const navigate = useNavigate();
+  const { createUser, updateUser } = useAuth();
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm();
+
+  const onSubmit = async (data) => {
+    const userImg = { image: data.userImg[0] };
+
+    const res = await axiosPublic.post(imgBbApi, userImg, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+
+    if (res.data.success) {
+      createUser(data.userMail, data.password)
+        .then(() => {
+          const userPhotoUrl = res?.data?.data?.display_url;
+          console.log(userPhotoUrl);
+          updateUser(data?.userName, userPhotoUrl).then(() => {
+            const userInfo = {
+              userName: data?.userName,
+              userImg: res?.data?.data?.display_url,
+              userEmail: data?.userMail,
+              createdAt: new Date(),
+            };
+
+            axiosSecure
+              .post("/create-user", userInfo)
+              .then((res) => {
+                if (res.data.insertedId) {
+                  reset();
+                  Swal.fire({
+                    position: "center",
+                    icon: "success",
+                    title: "Welcome to Taskora!",
+                    showConfirmButton: false,
+                    timer: 1000,
+                  });
+                  navigate("/");
+                }
+              })
+              .catch(() => {
+                Swal.fire({
+                  position: "center",
+                  icon: "error",
+                  title: "An Error Occured.",
+                  showConfirmButton: false,
+                  timer: 1000,
+                });
+              });
+          });
+          // const user = res.user;
+          // console.log(user);
+        })
+        .catch(() => {
+          // console.log(error);
+        });
+    }
+    console.log(res?.data?.data?.display_url);
+  };
   return (
     <div className="flex items-center justify-center flex-col md:flex-row">
       <div className="flex flex-col justify-center items-center w-full md:w-1/2">
@@ -44,14 +119,20 @@ const Signup = () => {
           Login with Google
         </button>
         <div className="divider divider-warning text-white">Or</div>
-        <form className="space-y-2">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-2">
           <div>
             <label className="text-textLight dark:text-textDark">Name</label>
             <input
               type="text"
               placeholder="Enter your name"
               className="input"
+              {...register("userName", { required: "User Name is Required" })}
             />
+            {errors.userName && (
+              <p className="text-accentColor text-sm mt-0.5">
+                {errors.userName.message}
+              </p>
+            )}
           </div>
           <div>
             <label className="text-textLight dark:text-textDark">Email</label>
@@ -59,17 +140,57 @@ const Signup = () => {
               type="email"
               placeholder="Enter your email"
               className="input"
+              {...register("userMail", { required: "Email is Required" })}
             />
+            {errors.userMail && (
+              <p className="text-accentColor text-sm mt-0.5">
+                {errors.userMail.message}
+              </p>
+            )}
           </div>
           <div>
             <label className="text-textLight dark:text-textDark">Photo</label>
-            <input type="file" className="file-input" />
+            <input
+              type="file"
+              className="file-input"
+              {...register("userImg", { required: "Photo is Required" })}
+            />
+            {errors.userImg && (
+              <p className="text-accentColor text-sm mt-0.5">
+                {errors.userImg.message}
+              </p>
+            )}
           </div>
           <div>
             <label className="text-textLight dark:text-textDark">
               Password
             </label>
-            <input type="password" placeholder="******" className="input" />
+            <input
+              type="password"
+              placeholder="******"
+              className="input"
+              {...register("password", {
+                required: "Password is required",
+                maxLength: {
+                  value: 20,
+                  message: "Password not more than 20 character",
+                },
+                minLength: {
+                  value: 6,
+                  message: "Password not less than 6 characted",
+                },
+                pattern: {
+                  value: /(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*\W)(?!.* )/,
+                  message:
+                    "Password must contain one number, one uppercase, one lowercase and one special character",
+                },
+              })}
+            />
+            {errors.password && (
+              <p className="text-accentColor text-sm mt-0.5">
+                {errors.password.message}
+              </p>
+            )}
           </div>
           <button className="btn w-full mt-3 bg-primaryLight border-none text-white">
             Sign Up
