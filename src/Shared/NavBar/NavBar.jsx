@@ -85,15 +85,9 @@ const NavBar = () => {
       {/* Sub-items of menu */}
       {isExpandedMenu && (
         <div className="mt-2 space-y-1 pl-4 text-gray-700 dark:text-gray-300">
-          <p className="hover:text-gray-900 dark:hover:text-white cursor-pointer">
+          {/* <p className="hover:text-gray-900 dark:hover:text-white cursor-pointer">
             Add Task
-          </p>
-          <p className="hover:text-gray-900 dark:hover:text-white cursor-pointer">
-            Edit Task
-          </p>
-          <p className="hover:text-gray-900 dark:hover:text-white cursor-pointer">
-            Delete Task
-          </p>
+          </p> */}
         </div>
       )}
     </div>

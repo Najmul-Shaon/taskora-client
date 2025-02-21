@@ -3,8 +3,11 @@ import { IoCloseCircleOutline } from "react-icons/io5";
 import useAxiosSecure from "../../Hooks/useAxiosSecure";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
+import useAuth from "../../Hooks/useAuth";
 
+// eslint-disable-next-line react/prop-types
 const TaskAddForm = ({ setIsViewAddTask }) => {
+  const { user } = useAuth();
   const axiosSecure = useAxiosSecure();
   const navigate = useNavigate();
   const {
@@ -16,6 +19,7 @@ const TaskAddForm = ({ setIsViewAddTask }) => {
 
   const onSubmit = async (data) => {
     const taskInfo = {
+      user: user?.email,
       title: data?.taskTitle,
       description: data?.taskDescription,
       deadline: data?.deadline,
