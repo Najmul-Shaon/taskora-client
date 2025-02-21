@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import { FiEdit3 } from "react-icons/fi";
 import { MdOutlineDeleteForever } from "react-icons/md";
 import Swal from "sweetalert2";

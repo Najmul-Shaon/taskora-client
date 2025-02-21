@@ -18,7 +18,7 @@ const WorkFlow = () => {
   //   console.log(res.data);
   // });
 
-  const { data: toDos = [], refetch } = useQuery({
+  const { data: toDos = [], refetch: toDosRefetch } = useQuery({
     queryKey: ["todos"],
     queryFn: async () => {
       const res = await axiosSecure.get(
@@ -27,9 +27,35 @@ const WorkFlow = () => {
       return res.data;
     },
   });
-  refetch();
+  const { data: inProgress = [], refetch: inProgressRefetch } = useQuery({
+    queryKey: ["inProgress"],
+    queryFn: async () => {
+      const res = await axiosSecure.get(
+        `/get/tasks?email=${user?.email}&category=in-progress`
+      );
+      return res.data;
+    },
+  });
+  const { data: done = [], refetch: inDoneRefetch } = useQuery({
+    queryKey: ["done"],
+    queryFn: async () => {
+      const res = await axiosSecure.get(
+        `/get/tasks?email=${user?.email}&category=done`
+      );
+      return res.data;
+    },
+  });
+  toDosRefetch();
+  inProgressRefetch();
+  inDoneRefetch();
 
-  console.log(toDos);
+  // useEffect(() => {
+  //   toDosRefetch(), inProgressRefetch(), inDoneRefetch();
+  // }, [toDosRefetch, inProgressRefetch, inDoneRefetch]);
+
+  // console.log(toDos);
+  console.log(inProgress);
+  console.log(done);
   return (
     <div className="relative">
       <h1 className="mt-8 mb-4 text-textLight dark:text-textDark font-semibold text-3xl flex items-center justify-center gap-2">
@@ -89,15 +115,24 @@ const WorkFlow = () => {
 
         {/* In-progress  */}
         <div className="space-y-4">
-          <TaskCard />
-          <TaskCard />
-          <TaskCard />
+          {inProgress.map((singleInProgress) => (
+            <TaskCard
+              key={singleInProgress._id}
+              taskInfo={singleInProgress}
+              setIsViewAddTask={setIsViewAddTask}
+            />
+          ))}
         </div>
 
         {/* done  */}
         <div className="space-y-4">
-          <TaskCard />
-          <TaskCard />
+          {done.map((singleDone) => (
+            <TaskCard
+              key={singleDone._id}
+              taskInfo={singleDone}
+              setIsViewAddTask={setIsViewAddTask}
+            />
+          ))}
         </div>
       </div>
     </div>
