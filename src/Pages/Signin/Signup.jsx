@@ -45,7 +45,7 @@ const Signup = () => {
             };
 
             axiosSecure
-              .post("/create-user", userInfo)
+              .post("/post/create-user", userInfo)
               .then((res) => {
                 if (res.data.insertedId) {
                   reset();
@@ -88,7 +88,7 @@ const Signup = () => {
           createdAt: new Date(),
         };
         axiosPublic
-          .post("/create-user", userInfo)
+          .post("/post/create-user", userInfo)
           .then((res) => {
             console.log();
             if (
