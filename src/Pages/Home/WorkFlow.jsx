@@ -1,61 +1,13 @@
 import { IoStatsChart } from "react-icons/io5";
-import TaskCard from "./TaskCard";
-import { RiListCheck3 } from "react-icons/ri";
-import { MdOutlinePending, MdTaskAlt } from "react-icons/md";
-import { FaPlus } from "react-icons/fa6";
 import { useState } from "react";
 import TaskAddForm from "./TaskAddForm";
-import useAxiosSecure from "../../Hooks/useAxiosSecure";
-import useAuth from "../../Hooks/useAuth";
-import { useQuery } from "@tanstack/react-query";
+import Todo from "./Todo";
+import InProgress from "./InProgress";
+import Done from "./Done";
 
 const WorkFlow = () => {
-  const { user } = useAuth();
   const [isViewAddTask, setIsViewAddTask] = useState(false);
-  const axiosSecure = useAxiosSecure();
 
-  // axiosSecure.get(`/get/tasks?email=${user?.email}`).then((res) => {
-  //   console.log(res.data);
-  // });
-
-  const { data: toDos = [], refetch: toDosRefetch } = useQuery({
-    queryKey: ["todos"],
-    queryFn: async () => {
-      const res = await axiosSecure.get(
-        `/get/tasks?email=${user?.email}&category=to-do`
-      );
-      return res.data;
-    },
-  });
-  const { data: inProgress = [], refetch: inProgressRefetch } = useQuery({
-    queryKey: ["inProgress"],
-    queryFn: async () => {
-      const res = await axiosSecure.get(
-        `/get/tasks?email=${user?.email}&category=in-progress`
-      );
-      return res.data;
-    },
-  });
-  const { data: done = [], refetch: inDoneRefetch } = useQuery({
-    queryKey: ["done"],
-    queryFn: async () => {
-      const res = await axiosSecure.get(
-        `/get/tasks?email=${user?.email}&category=done`
-      );
-      return res.data;
-    },
-  });
-  toDosRefetch();
-  inProgressRefetch();
-  inDoneRefetch();
-
-  // useEffect(() => {
-  //   toDosRefetch(), inProgressRefetch(), inDoneRefetch();
-  // }, [toDosRefetch, inProgressRefetch, inDoneRefetch]);
-
-  // console.log(toDos);
-  console.log(inProgress);
-  console.log(done);
   return (
     <div className="relative">
       <h1 className="mt-8 mb-4 text-textLight dark:text-textDark font-semibold text-3xl flex items-center justify-center gap-2">
@@ -64,76 +16,20 @@ const WorkFlow = () => {
       </h1>
       {/* toggle task add form  */}
       {isViewAddTask && <TaskAddForm setIsViewAddTask={setIsViewAddTask} />}
-      {isViewAddTask && (
+      {/* {isViewAddTask && (
         <>
           <div
             onClick={() => setIsViewAddTask(false)}
-            className="fixed inset-0 z-60 bg-black opacity-50"
+            className="fixed inset-0 z-70 bg-black opacity-50"
           ></div>
         </>
-      )}
+      )} */}
 
-      {/* card header start */}
-      <div className="grid grid-cols-3 gap-6">
-        <div className="flex items-center justify-between">
-          <h3 className="text-textLight dark:text-textDark text-2xl my-3 flex items-center gap-2">
-            <RiListCheck3 />
-            <span>To-do</span>
-          </h3>
-          <span
-            onClick={() => setIsViewAddTask(true)}
-            className="flex items-center gap-1 text-lg bg-accentColor p-1 rounded-lg text-white cursor-pointer"
-          >
-            <FaPlus />
-            Add Task
-          </span>
-        </div>
-
-        <h3 className="text-textLight dark:text-textDark text-2xl my-3 flex items-center gap-2">
-          <MdOutlinePending />
-          <span>In-progress</span>
-        </h3>
-        <h3 className="text-textLight dark:text-textDark text-2xl my-3 flex items-center gap-2">
-          <MdTaskAlt />
-          <span>Done</span>
-        </h3>
-      </div>
-      {/* card header end  */}
-
-      <div className="grid grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-24 md:gap-10">
         {/* to do  */}
-        <div className="space-y-4">
-          {/* {toDos?.length < 1 && <p className="text-accentColor">Empty</p>} */}
-          {toDos.map((todo) => (
-            <TaskCard
-              key={todo._id}
-              taskInfo={todo}
-              setIsViewAddTask={setIsViewAddTask}
-            />
-          ))}
-        </div>
-
-        {/* In-progress  */}
-        <div className="space-y-4">
-          {inProgress.map((singleInProgress) => (
-            <TaskCard
-              key={singleInProgress._id}
-              taskInfo={singleInProgress}
-              setIsViewAddTask={setIsViewAddTask}
-            />
-          ))}
-        </div>
-
-        {/* done  */}
-        <div className="space-y-4">
-          {done.map((singleDone) => (
-            <TaskCard
-              key={singleDone._id}
-              taskInfo={singleDone}
-              setIsViewAddTask={setIsViewAddTask}
-            />
-          ))}
-        </div>
+        <Todo setIsViewAddTask={setIsViewAddTask} />
+        <InProgress setIsViewAddTask={setIsViewAddTask} />
+        <Done setIsViewAddTask={setIsViewAddTask} />
       </div>
     </div>
   );
