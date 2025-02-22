@@ -102,7 +102,17 @@ const TaskAddForm = ({ setIsViewAddTask }) => {
             <input
               type="date"
               className="input"
-              {...register("deadline", { required: "Deadline is Required" })}
+              {...register("deadline", {
+                required: "Deadline is Required",
+                validate: (value) => {
+                  const selectedDate = new Date(value);
+                  const today = new Date();
+                  today.setHours(0, 0, 0, 0);
+                  return (
+                    selectedDate >= today || "Deadline cannot be in the past"
+                  );
+                },
+              })}
             />
             {errors.deadline && (
               <p className="text-accentColor text-sm mt-0.5">

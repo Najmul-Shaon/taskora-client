@@ -16,14 +16,6 @@ const WorkFlow = () => {
       </h1>
       {/* toggle task add form  */}
       {isViewAddTask && <TaskAddForm setIsViewAddTask={setIsViewAddTask} />}
-      {/* {isViewAddTask && (
-        <>
-          <div
-            onClick={() => setIsViewAddTask(false)}
-            className="fixed inset-0 z-70 bg-black opacity-50"
-          ></div>
-        </>
-      )} */}
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-24 md:gap-10">
         {/* to do  */}
