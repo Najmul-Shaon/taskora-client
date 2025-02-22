@@ -5,8 +5,25 @@ import useAxiosSecure from "../../Hooks/useAxiosSecure";
 import useAuth from "../../Hooks/useAuth";
 import { useQuery } from "@tanstack/react-query";
 import TaskCard from "./TaskCard";
+import {
+  closestCenter,
+  DndContext,
+  DragOverlay,
+  PointerSensor,
+  TouchSensor,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { useEffect, useState } from "react";
 
 const Todo = ({ setIsViewAddTask }) => {
+  const [localToDos, setLocalToDos] = useState([]);
+  const [activeTask, setActiveTask] = useState(null);
   const { user } = useAuth();
   const axiosSecure = useAxiosSecure();
   const { data: toDos = [], refetch: toDosRefetch } = useQuery({
@@ -18,7 +35,61 @@ const Todo = ({ setIsViewAddTask }) => {
       return res.data;
     },
   });
-  toDosRefetch();
+  // toDosRefetch();
+
+  useEffect(() => {
+    if (toDos.length > 0) {
+      setLocalToDos(toDos);
+    }
+  }, [toDos]);
+
+  // Sensors for desktop & mobile
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 5,
+      },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 250,
+        tolerance: 5,
+      },
+    })
+  );
+
+  const onDragStart = (event) => {
+    const task = localToDos.find((todo) => todo.order === event.active.id);
+    setActiveTask(task);
+  };
+
+  const onDragOver = (event) => {
+    console.log(event);
+    const { active, over } = event;
+    // setActiveTask(null);
+
+    if (!over || active.id === over.id) {
+      return;
+    }
+
+    const oldIndex = localToDos.findIndex((todo) => todo.order === active.id);
+    const newIndex = localToDos.findIndex((todo) => todo.order === over.id);
+
+    if (oldIndex !== newIndex) {
+      setLocalToDos((prev) => arrayMove(prev, oldIndex, newIndex));
+    }
+
+    // const updatedTodos = arrayMove(localToDos, oldIndex, newIndex);
+
+    // console.log(localToDos);
+    // console.log(updatedTodos);
+    // setLocalToDos(updatedTodos);
+  };
+
+  const onDragEnd = () => {
+    setActiveTask(null);
+  };
+
   return (
     <div>
       <div className="flex items-center justify-between">
@@ -35,14 +106,34 @@ const Todo = ({ setIsViewAddTask }) => {
         </span>
       </div>
       <div className="space-y-4">
-        {/* {toDos?.length < 1 && <p className="text-accentColor">Empty</p>} */}
-        {toDos.map((todo) => (
-          <TaskCard
-            key={todo._id}
-            taskInfo={todo}
-            setIsViewAddTask={setIsViewAddTask}
-          />
-        ))}
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragStart={onDragStart}
+          onDragOver={onDragOver}
+          onDragEnd={onDragEnd}
+        >
+          <SortableContext
+            items={localToDos}
+            strategy={verticalListSortingStrategy}
+          >
+            {localToDos.map((todo) => (
+              <TaskCard
+                key={todo._id}
+                taskInfo={todo}
+                setIsViewAddTask={setIsViewAddTask}
+              />
+            ))}
+          </SortableContext>
+          <DragOverlay>
+            {activeTask ? (
+              <TaskCard
+                taskInfo={activeTask}
+                setIsViewAddTask={setIsViewAddTask}
+              />
+            ) : null}
+          </DragOverlay>
+        </DndContext>
       </div>
     </div>
   );
