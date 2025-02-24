@@ -76,7 +76,7 @@ const Signup = () => {
           // console.log(error);
         });
     }
-    console.log(res?.data?.data?.display_url);
+    // console.log(res?.data?.data?.display_url);
   };
   const handleGoogleLogin = () => {
     loginWithGoogle()

@@ -1,15 +1,23 @@
+/* eslint-disable react/prop-types */
 import { useForm } from "react-hook-form";
 import { IoCloseCircleOutline } from "react-icons/io5";
 import useAxiosSecure from "../../Hooks/useAxiosSecure";
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import useAuth from "../../Hooks/useAuth";
+import { useEffect, useState } from "react";
 
-// eslint-disable-next-line react/prop-types
-const TaskAddForm = ({ setIsViewAddTask }) => {
+const TaskEditForm = ({
+  setIsViewEidtTask,
+  editingTaskId,
+  allTasksRefetch,
+  taskType,
+}) => {
   const { user } = useAuth();
   const axiosSecure = useAxiosSecure();
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
+  const [taskInfoForEdit, setTaskInfoForEdit] = useState({});
+  // console.log(taskInfoForEdit);
   const {
     register,
     handleSubmit,
@@ -17,29 +25,52 @@ const TaskAddForm = ({ setIsViewAddTask }) => {
     formState: { errors },
   } = useForm();
 
+  useEffect(() => {
+    axiosSecure
+      .get(`/get/task/${editingTaskId}`)
+      .then((res) => {
+        setTaskInfoForEdit(res.data);
+      })
+      .catch(() => {
+        // console.log(error);
+      });
+  }, [axiosSecure, editingTaskId]);
+
+  useEffect(() => {
+    if (taskInfoForEdit) {
+      reset({
+        taskTitle: taskInfoForEdit.title || "",
+        taskDescription: taskInfoForEdit.description || "",
+        deadline: taskInfoForEdit.deadline || "",
+      });
+    }
+  }, [taskInfoForEdit, reset]);
+
   const onSubmit = async (data) => {
     const taskInfo = {
       user: user?.email,
       title: data?.taskTitle,
       description: data?.taskDescription,
       deadline: data?.deadline,
-      createdAt: new Date(),
-      category: "to-do",
+      editAt: new Date(),
+      category: taskType,
     };
     axiosSecure
-      .post("/post/task", taskInfo)
+      .patch(`/patch/task/${editingTaskId}`, taskInfo)
       .then((res) => {
-        if (res.data.insertedId) {
+        // console.log(res.data);
+        if (res.data.modifiedCount > 0) {
           Swal.fire({
             position: "center",
             icon: "success",
-            title: "Your task has been saved",
+            title: "Your task has been edited.",
             showConfirmButton: false,
-            timer: 1500,
+            timer: 1000,
           });
           reset();
-          setIsViewAddTask(false);
-          navigate("/");
+          setIsViewEidtTask(false);
+          allTasksRefetch();
+          // navigate("/");
         }
       })
       .catch(() => {
@@ -51,11 +82,11 @@ const TaskAddForm = ({ setIsViewAddTask }) => {
     <div className="fixed inset-0 flex items-center justify-center p-4 z-60">
       <div
         className="absolute inset-0 bg-black opacity-50"
-        onClick={() => setIsViewAddTask(false)}
+        onClick={() => setIsViewEidtTask(false)}
       ></div>
       <div className="relative p-4 bg-bgLight rounded-lg z-70">
         <p
-          onClick={() => setIsViewAddTask(false)}
+          onClick={() => setIsViewEidtTask(false)}
           className="text-accentColor flex justify-end text-2xl cursor-pointer"
         >
           <IoCloseCircleOutline className="" />
@@ -65,6 +96,7 @@ const TaskAddForm = ({ setIsViewAddTask }) => {
             <label className="text-textLight dark:text-textDark">Name</label>
             <input
               type="text"
+              defaultValue={taskInfoForEdit?.title}
               placeholder="Task tile"
               className="input"
               {...register("taskTitle", { required: "Title is Required" })}
@@ -81,6 +113,7 @@ const TaskAddForm = ({ setIsViewAddTask }) => {
             </label>
             <textarea
               className="textarea"
+              defaultValue={taskInfoForEdit?.description}
               placeholder="Task description"
               {...register("taskDescription", {
                 maxLength: {
@@ -101,6 +134,7 @@ const TaskAddForm = ({ setIsViewAddTask }) => {
             </label>
             <input
               type="date"
+              defaultValue={taskInfoForEdit?.deadline}
               className="input"
               {...register("deadline", {
                 required: "Deadline is Required",
@@ -122,7 +156,7 @@ const TaskAddForm = ({ setIsViewAddTask }) => {
           </div>
 
           <button className="btn w-full mt-3 bg-primaryLight border-none text-white">
-            Add
+            Update
           </button>
         </form>
       </div>
@@ -130,4 +164,4 @@ const TaskAddForm = ({ setIsViewAddTask }) => {
   );
 };
 
-export default TaskAddForm;
+export default TaskEditForm;

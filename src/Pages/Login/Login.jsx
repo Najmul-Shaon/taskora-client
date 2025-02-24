@@ -19,9 +19,9 @@ const Login = () => {
   } = useForm();
 
   const onSubmit = async (data) => {
-    login(data?.userMail, data?.password).then((res) => {
-      const user = res.user;
-      console.log(user);
+    login(data?.userMail, data?.password).then(() => {
+      // const user = res.user;
+      // console.log(user);
       Swal.fire({
         position: "center",
         icon: "success",
@@ -32,7 +32,7 @@ const Login = () => {
       reset();
       navigate(from, { replace: true });
     });
-    console.log(data);
+    // console.log(data);
   };
 
   const handleGoogleLogin = () => {
